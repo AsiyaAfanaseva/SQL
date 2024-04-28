@@ -1,0 +1,21 @@
+CREATE FUNCTION dbo.ufCustomerNameget (@CustomerID int)
+RETURNS TABLE
+AS
+RETURN
+    (SELECT 
+        CASE 
+            WHEN FirstName IS NULL THEN '-'
+            ELSE CONCAT(LastName, ' ', FirstName)
+        END AS FullName
+    FROM Customers 
+	WHERE CustomerID = @CustomerID);
+GO
+
+CREATE OR ALTER VIEW dbo.vOrdersInfo
+AS
+SELECT
+o.OrderID,
+o.OrderDate,
+ISNULL(cn.FullName, '-') AS FullName
+FROM dbo.Orders o
+OUTER APPLY dbo.ufCustomerNameget(o.CustomerID) cn
